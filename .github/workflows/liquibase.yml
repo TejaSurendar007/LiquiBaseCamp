@@ -47,6 +47,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Check Liquibase Version
+        uses: liquibase/liquibase-github-action@v4
+        with:
+          operation: --version
+          
       - name: Run Liquibase Update
         uses: liquibase/liquibase-github-action@v4
         with:
@@ -54,4 +59,5 @@ jobs:
           changeLogFile: liquibase/changelog.xml
           url: ${{ secrets.DB_URL }}
           username: ${{ secrets.DB_USERNAME }}
-          password: ${{ secrets.DB_PASSWORD }}    
+          password: ${{ secrets.DB_PASSWORD }}
+          driver: com.microsoft.sqlserver.jdbc.SQLServerDriver    
