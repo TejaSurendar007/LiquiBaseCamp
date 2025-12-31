@@ -48,10 +48,11 @@ jobs:
           java-version: '17'
 
       - name: Check Liquibase Version
-        uses: liquibase/liquibase-github-action@v4
-        with:
-          operation: --version
-          
+        #uses: liquibase/liquibase-github-action@v4
+        #with:
+        #  operation: --version
+        run: liquibase --version
+
       - name: Run Liquibase Update
         uses: liquibase/liquibase-github-action@v4
         with:
@@ -60,4 +61,4 @@ jobs:
           url: ${{ secrets.DB_URL }}
           username: ${{ secrets.DB_USERNAME }}
           password: ${{ secrets.DB_PASSWORD }}
-          driver: com.microsoft.sqlserver.jdbc.SQLServerDriver    
+             
