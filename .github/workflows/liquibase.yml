@@ -1,0 +1,46 @@
+name: Liquibase Migration
+on: 
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Target environment (dev/qa/demo)"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - qa
+          - demo
+      services:
+        description: "Comma-separated list of services (default: all)"
+        required: false
+      schema_config:
+        description: "Schema config YAML from config/ folder"
+        required: false
+        default: schema-config-dev.yml
+        type: choice
+        options:
+          - schema-config-dev.yml
+          - schema-config-qa.yml
+          - schema-config-demo.yml
+jobs:
+  liquibase:
+    runs-on: ubuntu-latest   # GitHub-hosted runner
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run Liquibase Update
+        uses: liquibase/liquibase-github-action@v4
+        with:
+          operation: update
+          changeLogFile: liquibase/changelog.xml
+          url: ${{ secrets.DB_URL }}
+          username: ${{ secrets.DB_USERNAME }}
+          password: ${{ secrets.DB_PASSWORD }}    
