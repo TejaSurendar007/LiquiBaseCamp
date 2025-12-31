@@ -47,6 +47,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Install Liquibase
+        run: |
+          if ! command -v liquibase &> /dev/null
+          then
+            echo "Liquibase not found, installing..."
+            curl -L https://github.com/liquibase/liquibase/releases/download/v4.25.0/liquibase-4.25.0.tar.gz -o liquibase.tar.gz
+            tar -xvzf liquibase.tar.gz
+            sudo mv liquibase /usr/local/bin/
+          else
+            echo "Liquibase is already installed"
+          fi   
+          
       - name: Check Liquibase Version
         #uses: liquibase/liquibase-github-action@v4
         #with:
