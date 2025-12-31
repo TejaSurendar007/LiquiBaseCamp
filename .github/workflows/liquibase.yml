@@ -47,23 +47,25 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Ensure Liquibase is installed & Check Version
-        shell: bash
+      - name: Install Liquibase 4.25.0
         run: |
           LIQUIBASE_DIR=$HOME/liquibase
-          if ! command -v liquibase &> /dev/null || ! liquibase --version &> /dev/null; 
-            then
-              echo "Installing/repairing Liquibase..."
-              mkdir -p $LIQUIBASE_DIR
-              curl -L https://github.com/liquibase/liquibase/releases/download/v4.25.0/liquibase-4.25.0.tar.gz -o liquibase.tar.gz
-              tar -xvzf liquibase.tar.gz -C $LIQUIBASE_DIR --strip-components=1
-              chmod +x $LIQUIBASE_DIR/liquibase
-            else
-            echo "Liquibase already installed and working"
+          echo "Cleaning previous installation..."
+          rm -rf $LIQUIBASE_DIR
+          mkdir -p $LIQUIBASE_DIR
+          echo "Downloading Liquibase 4.25.0..."
+          curl -L https://github.com/liquibase/liquibase/releases/download/v4.25.0/liquibase-4.25.0.tar.gz -o liquibase.tar.gz
+          echo "Extracting..."
+          tar -xvzf liquibase.tar.gz -C $LIQUIBASE_DIR --strip-components=1
+          if [ ! -f "$LIQUIBASE_DIR/liquibase" ]; then
+            echo "Error: liquibase script not found after extraction!"
+            ls -l $LIQUIBASE_DIR
+            exit 1
           fi
+          chmod +x $LIQUIBASE_DIR/liquibase
           echo "$LIQUIBASE_DIR" >> $GITHUB_PATH
-          LIQUIBASE_VERSION=$(liquibase --version)
-          echo "Liquibase $LIQUIBASE_VERSION installed successfully."
+      - name: Verify Liquibase
+        run: liquibase --version
       - name: Run Liquibase Update
         uses: liquibase/liquibase-github-action@v4
         with:
