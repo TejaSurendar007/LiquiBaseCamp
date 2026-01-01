@@ -11,12 +11,12 @@ on:
           - dev
           - qa
           - demo
-#      runner_group:
-#        description: 'Select Runner Group'
-#        required: false
-#        type: choice
-#        options:
-#          - NA    
+      runner_group:
+        description: "Select Runner Group"
+        required: false
+        type: choice
+        options:
+          - NA    
       services:
         description: "Optional - Please type Comma-separated list of services to run (default: all)"
         required: false
@@ -40,14 +40,18 @@ on:
         required  : false
         type: string 
 jobs:
-  liquibase_migration:
+  Liquibase_DB_migration:
     runs-on: ubuntu-latest   # GitHub-hosted runner
     environment: ${{ inputs.target_env }}
     concurrency:
       group: liquibase-${{ inputs.target_env }}
       cancel-in-progress: false
+    env:
+      DB_URL: ${{ secrets.DB_URL }} 
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}  
     steps:
-     - name: Show Inputs
+     - name: User Inputs
        run: |
           echo "Target environment: ${{ inputs.target_env }}"
           echo "Service list: ${{ inputs.service_list }}"
@@ -63,6 +67,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+     - name: Setting up Python
+       uses: actions/setup-python@v4
+       with:
+          python-version: '3.11'    
+
      - name: Installing Liquibase Software
        uses: liquibase/setup-liquibase@v2
        with:
@@ -71,3 +80,15 @@ jobs:
 
      - name: Checking Liquibase version
        run: liquibase --version
+
+     - name: Install SQLFluff
+       run: pip install sqlfluff
+
+     - name: Run Liquibase Migration
+       run: |
+           liquibase \
+            --changeLogFile=services/credit/liquibase/changelogs/db.changelog-master.sql \
+            --url="$DB_URL" \
+            --username=$DB_USERNAME \
+            --password=$DB_PASSWORD \
+            status --verbose
