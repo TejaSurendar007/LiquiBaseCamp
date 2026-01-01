@@ -78,17 +78,20 @@ jobs:
           version: '5.0.0'
           edition: 'oss'
 
-     - name: Checking Liquibase version
-       run: liquibase --version
+     - name: Install Microsoft SQL Server Driver
+       run: liquibase lpm add mssql --global 
 
-     - name: Install SQLFluff
+     - name: Checking Liquibase version
+       run: liquibase --version 
+
+     - name: Installing SQLFluff Linter
        run: pip install sqlfluff
 
      - name: Run Liquibase Migration
        run: |
            liquibase \
             --changeLogFile=services/credit/liquibase/changelogs/db.changelog-master.sql \
-            --url="$DB_URL" \
+            --url=$DB_URL \
             --username=$DB_USERNAME \
             --password=$DB_PASSWORD \
             status --verbose
